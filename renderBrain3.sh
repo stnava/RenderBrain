@@ -16,7 +16,6 @@ input_template=$6
 vtkVol=${output_prefix}.vtk
 screenshot=${output_prefix}_volRender.jpg
 slice=${output_prefix}_slice${axial_slice_number}.jpg
-
 ThresholdImage 3 $input_seg seg.nii.gz 1 Inf
 ImageMath 3 $input_seg GetLargestComponent $input_seg
 ImageMath 3 ./biggestConnectedComponent.nii.gz ME $input_seg 1 
@@ -26,8 +25,9 @@ ImageMath 3 ./biggestConnectedComponent.nii.gz ME $input_seg 1
     SmoothImage 3  tissueb.nii.gz 0.8 tissueb.nii.gz 
 # fi 
 MultiplyImages 3  ${input_brain} tissueb.nii.gz ./biggestConnectedComponent.nii.gz 
-c3d ./biggestConnectedComponent.nii.gz -stretch 10% 98% 0 255 -clip 0 255 -o $vtkVol
-./bin/volumeRender $vtkVol $screenshot 8 0 90 &
-# sleep 10
-# convert $screenshot -shave 255x255 $screenshot
-rm *vtk 
+ExtractSliceFromImage 3 ./biggestConnectedComponent.nii.gz  ${output_prefix}_slice.nii.gz 2 ${axial_slice_number}
+ConvertToJpg ${output_prefix}_slice.nii.gz  $slice 
+c3d ./biggestConnectedComponent.nii.gz -stretch 10% 98% 0 255 -clip 0 255 -o out.vtk
+./bin/volumeRender out.vtk $screenshot 8 0 90 &
+sleep 10
+rm out.vtk
