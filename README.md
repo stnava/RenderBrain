@@ -14,3 +14,9 @@ axis to slice and other stuff ...
 ` ./renderBrain3.sh brain08.nii.gz brain08seg.nii.gz RefOutput 140 2 `
 
 gives you output starting with RefOutput* ( see included reference output ).
+
+
+![Rendering Example](https://raw2.github.com/stnava/RenderBrain/master/RefOutput_volRender.jpg "Rendering")
+
+![Slice Example](https://raw2.github.com/stnava/RenderBrain/master/RefOutput_slice140.jpg "Slice")
+
