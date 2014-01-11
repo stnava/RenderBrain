@@ -17,7 +17,7 @@ cp $input_brain  inbrain.nii.gz
 ThresholdImage 3 $input_seg seg.nii.gz 1 Inf                      #Tweak
 ImageMath 3 seg.nii.gz GetLargestComponent seg.nii.gz             #Tweak
 ImageMath 3 seg.nii.gz FillHoles seg.nii.gz
-ImageMath 3 ./biggestConnectedComponent.nii.gz ME seg.nii.gz 1    #Tweak
+ImageMath 3 seg.nii.gz MD seg.nii.gz 1    #Tweak
                                                                   #Tweak segmentation protocol
 Atropos -d 3 -a $input_brain -x seg.nii.gz -o tissue.nii.gz -i kmeans[3] -m [0.1,1x1x1] -c [3,0]
 ThresholdImage 3 tissue.nii.gz tissueb.nii.gz  2 3                #Tweak
