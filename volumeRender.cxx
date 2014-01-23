@@ -25,12 +25,12 @@ static void CreateImageData(vtkImageData* im);
 
 int main(int argc, char *argv[])
 {
-  vtkSmartPointer<vtkImageData> imageData =
-    vtkSmartPointer<vtkImageData>::New();
+  vtkSmartPointer<vtkImageData> imageData  = NULL;
+  vtkSmartPointer<vtkImageData> imageData2 = NULL;
   if (argc < 3)
     {
     // CreateImageData(imageData);
-    std::cout << "Usage: volumeRender input.vtk output_screenshot.png <magnification_factor> <elevation> <azimuth> <roll>\n";
+    std::cout << "Usage: volumeRender input.vtk output_screenshot.png <magnification_factor> <elevation> <azimuth> <roll> <image-2>\n";
     std::cout << "Default magnification_factor=3, elevation=0, azimuth=0\n";
     return EXIT_FAILURE;
     }
@@ -40,10 +40,49 @@ int main(int argc, char *argv[])
       vtkSmartPointer<vtkStructuredPointsReader>::New();
     reader->SetFileName(argv[1]);
     reader->Update();
-
     imageData = reader->GetOutput();
-
     }
+
+// set the camera
+  double azimuth=0;
+  double elevation=0;
+  double mag=3;
+  double roll=0;
+  std::string image2fn;
+    if (argc > 7 ) 
+    {
+      mag = atof(argv[3]);
+      azimuth = atof(argv[5]);
+      elevation = atof(argv[4]);
+      roll = atof( argv[6] );
+
+      vtkSmartPointer<vtkStructuredPointsReader> reader =
+	vtkSmartPointer<vtkStructuredPointsReader>::New();
+      reader->SetFileName(argv[7]);
+      reader->Update();
+      imageData2 = reader->GetOutput();
+    }    
+    if (argc > 6) 
+    {
+      mag = atof(argv[3]);
+      azimuth = atof(argv[5]);
+      elevation = atof(argv[4]);
+      roll = atof( argv[6] );
+    }    
+    if (argc > 5 ) 
+    {
+      mag = atof(argv[3]);
+      azimuth = atof(argv[5]);
+      elevation = atof(argv[4]);
+    }    
+    if (argc >  4) 
+    {
+      mag = atof(argv[3]);
+      elevation = atof(argv[4]);
+    }
+  if (argc > 3 )
+    mag = atof(argv[3]);
+    
 
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
@@ -94,10 +133,6 @@ int main(int argc, char *argv[])
 
   vtkSmartPointer<vtkColorTransferFunction> color =
     vtkSmartPointer<vtkColorTransferFunction>::New();
-//  color->AddRGBPoint(0.0  ,0.0,0.0,1.0);
-//  color->AddRGBPoint(40.0  ,1.0,0.0,0.0);
-//  color->AddRGBPoint(255.0,1.0,1.0,1.0);
-
   color->AddRGBSegment(0, 0.0, 0.0, 0.0,
                        255, 1.0, 1.0, 1.0 );
   
@@ -108,40 +143,36 @@ int main(int argc, char *argv[])
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
-  ren1->ResetCamera();
 
-// set the camera
-  double azimuth=0;
-  double elevation=0;
-  double mag=3;
-  double roll=0;
-    if (argc > 6) 
+  if ( imageData2 )
     {
-      mag = atof(argv[3]);
-      azimuth = atof(argv[5]);
-      elevation = atof(argv[4]);
-      roll = atof( argv[6] );
-    }    
-    if (argc > 5 ) 
-    {
-      mag = atof(argv[3]);
-      azimuth = atof(argv[5]);
-      elevation = atof(argv[4]);
-    }    
-    if (argc >  4) 
-    {
-      mag = atof(argv[3]);
-      elevation = atof(argv[4]);
+      vtkSmartPointer<vtkSmartVolumeMapper> volumeMapper2 =
+	vtkSmartPointer<vtkSmartVolumeMapper>::New();
+      volumeMapper2->SetBlendModeToComposite(); // composite first
+      volumeMapper2->SetInputData(imageData2);
+      vtkSmartPointer<vtkVolumeProperty> volumeProperty2 =
+	vtkSmartPointer<vtkVolumeProperty>::New();
+      volumeProperty2->ShadeOff();
+      volumeProperty2->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+      volumeProperty2->SetScalarOpacity(compositeOpacity); // composite first.
+      vtkSmartPointer<vtkColorTransferFunction> color2 =
+	vtkSmartPointer<vtkColorTransferFunction>::New();
+      color2->AddRGBSegment(0, 0.0, 0.0, 0.0,
+                       255, 1.0, 0.0, 0.0 );
+      volumeProperty2->SetColor(color2);
+      vtkSmartPointer<vtkVolume> volume2 =
+	vtkSmartPointer<vtkVolume>::New();
+      volume2->SetMapper(volumeMapper2);
+      volume2->SetProperty(volumeProperty2);
+      ren1->AddViewProp(volume2);
     }
-  if (argc > 3 )
-    mag = atof(argv[3]);
-    
+
+  ren1->ResetCamera();
   vtkSmartPointer<vtkCamera> cam;
   cam = ren1->GetActiveCamera();
   cam->Azimuth(azimuth);
   cam->Elevation(elevation);
   cam->Roll(roll);
-  std::cout << " roll " << roll << std::endl;
   // Render composite. In default mode. For coverage.
   renWin->Render();
 
