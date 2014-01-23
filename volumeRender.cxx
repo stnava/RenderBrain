@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
   if (argc < 3)
     {
     // CreateImageData(imageData);
-    std::cout << "Usage: volumeRender input.vtk output_screenshot.png <magnification_factor> <elevation> <azimuth>\n";
+    std::cout << "Usage: volumeRender input.vtk output_screenshot.png <magnification_factor> <elevation> <azimuth> <roll>\n";
     std::cout << "Default magnification_factor=3, elevation=0, azimuth=0\n";
     return EXIT_FAILURE;
     }
@@ -114,25 +114,34 @@ int main(int argc, char *argv[])
   double azimuth=0;
   double elevation=0;
   double mag=3;
-    if (argc == 6) 
+  double roll=0;
+    if (argc > 6) 
+    {
+      mag = atof(argv[3]);
+      azimuth = atof(argv[5]);
+      elevation = atof(argv[4]);
+      roll = atof( argv[6] );
+    }    
+    if (argc > 5 ) 
     {
       mag = atof(argv[3]);
       azimuth = atof(argv[5]);
       elevation = atof(argv[4]);
     }    
-    if (argc == 5) 
+    if (argc >  4) 
     {
       mag = atof(argv[3]);
       elevation = atof(argv[4]);
     }
-  if (argc == 4)
+  if (argc > 3 )
     mag = atof(argv[3]);
     
   vtkSmartPointer<vtkCamera> cam;
   cam = ren1->GetActiveCamera();
   cam->Azimuth(azimuth);
   cam->Elevation(elevation);
-
+  cam->Roll(roll);
+  std::cout << " roll " << roll << std::endl;
   // Render composite. In default mode. For coverage.
   renWin->Render();
 
