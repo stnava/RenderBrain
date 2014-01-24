@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
 //  compositeOpacity->AddSegment( opacityLevel - 0.5*opacityWindow, 0.0,
 //                                opacityLevel + 0.5*opacityWindow, 1.0 );
   volumeProperty->SetScalarOpacity(compositeOpacity); // composite first.
+  //  volumeProperty->SetGradientOpacity(compositeOpacity); // composite first.
 
   vtkSmartPointer<vtkColorTransferFunction> color =
     vtkSmartPointer<vtkColorTransferFunction>::New();
@@ -154,7 +155,14 @@ int main(int argc, char *argv[])
 	vtkSmartPointer<vtkVolumeProperty>::New();
       volumeProperty2->ShadeOff();
       volumeProperty2->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-      volumeProperty2->SetScalarOpacity(compositeOpacity); // composite first.
+      vtkSmartPointer<vtkPiecewiseFunction> compositeOpacity2 =
+	vtkSmartPointer<vtkPiecewiseFunction>::New();
+      compositeOpacity2->AddPoint(0.0,0.0);
+      compositeOpacity2->AddPoint(124.0,0.);
+      compositeOpacity2->AddPoint(125.0,0.25);
+      compositeOpacity2->AddPoint(255.0,0.75);
+      volumeProperty2->SetScalarOpacity(compositeOpacity2); // composite first.
+      volumeProperty2->SetGradientOpacity(compositeOpacity); // composite first.
       vtkSmartPointer<vtkColorTransferFunction> color2 =
 	vtkSmartPointer<vtkColorTransferFunction>::New();
       color2->AddRGBSegment(0, 0.0, 0.0, 0.0,
@@ -189,19 +197,8 @@ int main(int argc, char *argv[])
   writer->SetFileName(argv[2]);
   writer->SetInputConnection(windowToImageFilter->GetOutputPort());
   writer->Write();
-
-  // 3D texture mode. For coverage.
-  volumeMapper->SetRequestedRenderModeToRayCastAndTexture();
   renWin->Render();
-
-  // Software mode, for coverage. It also makes sure we will get the same
-  // regression image on all platforms.
-  volumeMapper->SetRequestedRenderModeToRayCast();
-  renWin->Render();
-
-
   iren->Start();
-
   return EXIT_SUCCESS;
 }
 
