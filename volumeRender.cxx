@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   double mag=3;
   double roll=0;
   std::string image2fn;
-    if (argc > 7 ) 
+    if (argc > 7 )
     {
       mag = atof(argv[3]);
       azimuth = atof(argv[5]);
@@ -61,28 +61,28 @@ int main(int argc, char *argv[])
       reader->SetFileName(argv[7]);
       reader->Update();
       imageData2 = reader->GetOutput();
-    }    
-    if (argc > 6) 
+    }
+    if (argc > 6)
     {
       mag = atof(argv[3]);
       azimuth = atof(argv[5]);
       elevation = atof(argv[4]);
       roll = atof( argv[6] );
-    }    
-    if (argc > 5 ) 
+    }
+    if (argc > 5 )
     {
       mag = atof(argv[3]);
       azimuth = atof(argv[5]);
       elevation = atof(argv[4]);
-    }    
-    if (argc >  4) 
+    }
+    if (argc >  4)
     {
       mag = atof(argv[3]);
       elevation = atof(argv[4]);
     }
   if (argc > 3 )
     mag = atof(argv[3]);
-    
+
 
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     vtkSmartPointer<vtkColorTransferFunction>::New();
   color->AddRGBSegment(0, 0.0, 0.0, 0.0,
                        255, 1.0, 1.0, 1.0 );
-  
+
   volumeProperty->SetColor(color);
 
   vtkSmartPointer<vtkVolume> volume =
@@ -185,20 +185,20 @@ int main(int argc, char *argv[])
   renWin->Render();
 
   // Screenshot
-  vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = 
+  vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter =
   vtkSmartPointer<vtkWindowToImageFilter>::New();
   windowToImageFilter->SetInput(renWin);
   windowToImageFilter->SetMagnification(mag); //set the resolution of the output image (3 times the current resolution of vtk render window)
   windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
   windowToImageFilter->Update();
-  
-  vtkSmartPointer<vtkPNGWriter> writer = 
+
+  vtkSmartPointer<vtkPNGWriter> writer =
   vtkSmartPointer<vtkPNGWriter>::New();
   writer->SetFileName(argv[2]);
   writer->SetInputConnection(windowToImageFilter->GetOutputPort());
   writer->Write();
-  renWin->Render();
-  iren->Start();
+//  renWin->Render();
+//  iren->Start();
   return EXIT_SUCCESS;
 }
 
